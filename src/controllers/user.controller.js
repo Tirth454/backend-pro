@@ -52,14 +52,12 @@ const registeruser = asynchandeler(async (req, res) => {
     // upload coverimage and avatar to cloudinary
     const avatar = await UploadFileOnCloudinary(avatarlocalpath);
     const cover = await UploadFileOnCloudinary(coverimagelocalpath);
-    console.log(avatar);
-    console.log(cover);
    
     if (!avatar) {
         throw new ApiError(409, "avatar is required")
     }
 
-    console.log("3");
+    
     // creating user and database entry 
     const user = await User.create({
         username: username.tolowercase(),
@@ -77,12 +75,12 @@ const registeruser = asynchandeler(async (req, res) => {
         throw new ApiError(409, "Something went wrong!! User not created")
     }
 
-    console.log("4");
+    
     // api response
     return res.status(500).json(
         new ApiResponse(501, createduser, "user Registered Successfully")
     )
-    console.log("5");
+    
 })
 
 export { registeruser }     
