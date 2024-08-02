@@ -40,7 +40,7 @@ const registeruser = asynchandeler(async (req, res) => {
         throw new ApiError(409, "User already exists")
     }
 
-    console.log("1");
+    
     // check for coverimage and avatar
     const avatarlocalpath = req.files?.avatar[0]?.path;
     const coverimagelocalpath = req.files?.coverImage[0]?.path;
@@ -54,7 +54,7 @@ const registeruser = asynchandeler(async (req, res) => {
     const cover = await UploadFileOnCloudinary(coverimagelocalpath);
     console.log(avatar);
     console.log(cover);
-    console.log("2");
+   
     if (!avatar) {
         throw new ApiError(409, "avatar is required")
     }
