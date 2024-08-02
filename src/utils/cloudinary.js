@@ -3,9 +3,9 @@ import fs from 'fs';
 import { ApiError } from './ApiError.js';
 
 cloudinary.config({
-    cloud_name: process.env.CLOUD_NAME,
-    api_key: process.env.API_KEY_CLOUDINARY,
-    api_secret: process.env.API_SECRETS_CLOUDINARY
+    cloud_name: 'duo7p1mkp',
+    api_key: 594949741422287,
+    api_secret: 'qHaUfwoYOr-X8MojsTI6MmgO_Is'
 });
 
 
@@ -15,16 +15,18 @@ const UploadFileOnCloudinary = async (localfilepath) => {
             throw new ApiError(400, "local file path not found");
 
         }
-        await cloudinary.v2.uploader
+        const response = await cloudinary.uploader
             .upload(localfilepath,
                 {
                     resource_type: "auto"
-                    
+
                 })
-            .then(result => console.log(result));
+                fs.unlinkSync(localfilepath)
+        return response
     } catch (error) {
         fs.unlinkSync(localfilepath)
-
+        console.log(error);
+        return null
     }
 }
 

@@ -16,14 +16,12 @@ const registeruser = asynchandeler(async (req, res) => {
 
 
     // getting user details from frontend
-    const { username, email, fullName, password } = req.body;
+    const { userName, email, fullName, password } = req.body;
 
 
     // validating the entered data
     if (
-        [username, email, fullName, password].some((fields) => {
-            fields?.trim() === ""
-        })
+        [userName, email, fullName, password].some((fields) => fields?.trim() === "")
     ) {
         throw new ApiError(401, "All Fields Required")
     }
@@ -34,35 +32,42 @@ const registeruser = asynchandeler(async (req, res) => {
 
     // check if user already exist or not 
     const existeduser = await User.findOne({
-        $or: [{ username }, { email }]
+        $or: [{ userName }, { email }]
     })
     if (existeduser) {
         throw new ApiError(409, "User already exists")
     }
 
-    
+
     // check for coverimage and avatar
-    const avatarlocalpath = req.files?.avatar[0]?.path;
-    const coverimagelocalpath = req.files?.coverImage[0]?.path;
+    let coverimagelocalpath;
+    let avatarlocalpath;
+    if (req.files && Array.isArray(req.files.coverImage) && req.files.coverImage.length > 0) {
+        coverimagelocalpath = req.files.coverImage[0].path;
+    }
+    if (req.files && Array.isArray(req.files.avatar) && req.files.avatar.length > 0) {
+        avatarlocalpath = req.files.avatar[0].path;
+    }
 
     if (!avatarlocalpath) {
         throw new ApiError(409, "Avatar is required")
     }
-    console.log(avatarlocalpath);
+
+    
     // upload coverimage and avatar to cloudinary
     const avatar = await UploadFileOnCloudinary(avatarlocalpath);
     const cover = await UploadFileOnCloudinary(coverimagelocalpath);
-   
+
     if (!avatar) {
         throw new ApiError(409, "avatar is required")
     }
 
-    
+
     // creating user and database entry 
     const user = await User.create({
-        username: username.tolowercase(),
+        userName: userName.toLowerCase(),
         avatar: avatar.url,
-        coverimage: cover?.url || "",
+        coverImage: cover?.url || "",
         email,
         fullName,
         password
@@ -75,12 +80,12 @@ const registeruser = asynchandeler(async (req, res) => {
         throw new ApiError(409, "Something went wrong!! User not created")
     }
 
-    
+
     // api response
-    return res.status(500).json(
-        new ApiResponse(501, createduser, "user Registered Successfully")
+    return res.status(399).json(
+        new ApiResponse(399, createduser, "user Registered Successfully")
     )
-    
+
 })
 
 export { registeruser }     
