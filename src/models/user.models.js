@@ -4,25 +4,29 @@ import jwt from "jsonwebtoken";
 
 
 const userSchema = new Schema({
-    userName: {
-        required: true,
-        type: String,
-        unique: true,
-        trim: true,
-        index: true
-    },
+
     email: {
         type: String,
         required: true,
+        lowercase: true,
         unique: true,
-        lowecase: true,
         trim: true,
+
+    },
+    userName: {
+        type: String,
+        required: true,
+        index: true,
+        unique: true,
+        trim: true,
+
     },
     fullName: {
         type: String,
         required: true,
-        trim: true,
-        index: true
+        index: true,
+        trim: true
+
     },
     avatar: {
         type: String, // cloudinary url
@@ -42,9 +46,10 @@ const userSchema = new Schema({
         required: [true, 'Password is required']
     },
     refreshToken: {
-        type: String
-    }
-}, { timestamp: true })
+        type: String,
+        default: ""
+    }     
+}, { timestamps: true });
 
 userSchema.pre("save", async function (next) {
     if (!this.isModified("password")) return next()
@@ -56,12 +61,12 @@ userSchema.methods.IsPasswordCorrect = async function (password) {
     return await bcrypt.compare(password, this.password)
 }
 
-userSchema.methods.GenerateAccessToken = async function () {
+userSchema.methods.GenerateAccessToken = function () {
     return jwt.sign(
         {
             _id: this._id,
             email: this.email,
-            username: this.username
+            userName: this.userName
         },
         process.env.ACCESS_TOKEN_SECRET,
         {
@@ -70,7 +75,7 @@ userSchema.methods.GenerateAccessToken = async function () {
     )
 }
 
-userSchema.methods.GenerateRefreshToken = async function () {
+userSchema.methods.GenerateRefreshToken = function () {
     return jwt.sign(
         {
             _id: this._id
